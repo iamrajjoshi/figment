@@ -6,10 +6,13 @@
     role,
     showInviteModal,
     showSettingsModal,
+    annotations,
+    activeTool,
   } from '../lib/stores';
   import Header from './Header.svelte';
   import EmptyState from './EmptyState.svelte';
   import Preview from './Preview.svelte';
+  import AnnotationToolbar from './AnnotationToolbar.svelte';
   import Timeline from './Timeline.svelte';
   import BottomBar from './BottomBar.svelte';
   import InviteModal from './InviteModal.svelte';
@@ -42,6 +45,15 @@
       <Preview />
     {/if}
   </div>
+
+  {#if !showEmpty}
+    <AnnotationToolbar
+      activeTool={$activeTool}
+      annotationCount={$annotations.length}
+      onToolSelect={(tool) => activeTool.set(tool)}
+      onClear={() => annotations.set([])}
+    />
+  {/if}
 
   <Timeline />
 

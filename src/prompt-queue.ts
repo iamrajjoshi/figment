@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { type Annotation } from "./annotations.js";
 
 export interface Prompt {
   id: string;
@@ -9,6 +10,7 @@ export interface Prompt {
   completedAt?: number;
   version?: number;
   error?: string;
+  annotations?: Annotation[];
 }
 
 type QueueEvent = "added" | "updated";
@@ -19,13 +21,14 @@ export class PromptQueue {
   private listeners = new Map<QueueEvent, Set<QueueListener>>();
 
   /** Add a new prompt to the queue. */
-  add(text: string, author: string): Prompt {
+  add(text: string, author: string, annotations?: Annotation[]): Prompt {
     const prompt: Prompt = {
       id: randomBytes(4).toString("hex"),
       text,
       author,
       status: "pending",
       submittedAt: Date.now(),
+      ...(annotations?.length ? { annotations } : {}),
     };
     this.queue.push(prompt);
     this.emit("added", prompt);

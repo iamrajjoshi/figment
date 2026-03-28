@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { queue, authorName, showToast } from '../lib/stores';
+  import { get } from 'svelte/store';
+  import { queue, authorName, showToast, annotations, activeTool } from '../lib/stores';
   import { submitPrompt } from '../lib/api';
   import PromptBubble from './PromptBubble.svelte';
   import AuthorTag from './AuthorTag.svelte';
@@ -22,16 +23,21 @@
     textareaEl.style.height = Math.min(textareaEl.scrollHeight, 120) + 'px';
   }
 
+  let annotationCount = $derived($annotations.length);
+
   async function handleSubmit() {
     const text = promptText.trim();
     if (!text || isSubmitting) return;
 
     const author = $authorName || 'Anonymous';
+    const currentAnnotations = get(annotations);
     isSubmitting = true;
 
     try {
-      await submitPrompt(text, author);
+      await submitPrompt(text, author, currentAnnotations.length > 0 ? currentAnnotations : undefined);
       promptText = '';
+      annotations.set([]);
+      activeTool.set(null);
       if (textareaEl) {
         textareaEl.style.height = 'auto';
       }
@@ -87,6 +93,11 @@
         <span class="processing-dot"></span>
         <span class="processing-dot"></span>
       </div>
+      {#if annotationCount > 0}
+        <span class="annotation-badge" title="{annotationCount} annotation{annotationCount === 1 ? '' : 's'} attached">
+          {annotationCount}
+        </span>
+      {/if}
       <button
         class="send-btn"
         title="Send"
@@ -223,6 +234,24 @@
   .processing-dot:nth-child(1) { animation: dotPulse 1.2s ease-in-out infinite 0s; }
   .processing-dot:nth-child(2) { animation: dotPulse 1.2s ease-in-out infinite 0.15s; }
   .processing-dot:nth-child(3) { animation: dotPulse 1.2s ease-in-out infinite 0.3s; }
+
+  .annotation-badge {
+    position: absolute;
+    right: 42px;
+    bottom: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-bg, rgba(232, 168, 76, 0.15));
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    padding: 0 5px;
+    z-index: 2;
+  }
 
   @media (max-width: 640px) {
     .bottom-bar {

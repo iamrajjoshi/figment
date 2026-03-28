@@ -1,5 +1,6 @@
 import { writable, get } from 'svelte/store';
 import type { Prompt, VersionMeta } from './types';
+import type { Annotation } from './annotation-types';
 
 // --- Auth ---
 
@@ -79,6 +80,11 @@ authorName.subscribe((value) => {
     localStorage.setItem('figment-author', value);
   }
 });
+
+// --- Annotations ---
+
+export const annotations = writable<Annotation[]>([]);
+export const activeTool = writable<string | null>(null);
 
 // --- UI State ---
 

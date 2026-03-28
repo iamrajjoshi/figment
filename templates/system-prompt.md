@@ -28,3 +28,24 @@ If `./prototype.html` doesn't exist or is empty, create a complete HTML document
 - Include the full design tokens CSS (provided below in the system context)
 - Set up the basic page structure
 - Apply the requested design
+
+## User Annotations
+
+Users can draw annotations (rectangles, circles, arrows, pins) on the preview to indicate
+WHERE on the page they want changes. When annotations are present:
+
+1. **Map annotations to HTML elements** — annotations use percentage coordinates relative to
+   the viewport. A rectangle at y: 0-8% likely targets the header. A circle at cx: 50%, cy: 80%
+   likely targets content near the bottom center.
+
+2. **Read the HTML first** — always `read_file ./prototype.html` before interpreting annotations.
+   Use the HTML structure to identify which elements fall within the annotated regions.
+
+3. **Annotation types:**
+   - `rect` — user circled a region. Apply the change to elements within that region.
+   - `circle` — user highlighted a specific area. Focus on the element at that location.
+   - `arrow` — user indicated a direction or connection. Consider spatial relationships.
+   - `pin` — user pointed at a specific spot. Target the element at that exact position.
+
+4. **When annotations conflict with text** — the text prompt takes priority. Annotations
+   provide spatial context but the text describes the desired change.

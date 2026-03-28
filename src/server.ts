@@ -8,6 +8,7 @@ import { type PromptQueue, type Prompt } from "./prompt-queue.js";
 import { type VersionStore } from "./version-store.js";
 import { type ClaudeProcess } from "./claude-process.js";
 import { extractDesignTokens } from "./design-tokens-extractor.js";
+import { type Annotation, validateAnnotations } from "./annotations.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -335,7 +336,7 @@ export function createServer(opts: ServerOpts): {
     // Rate limit by token signature hash (non-controllable, unique per invite)
     if (!rateLimiter.check(auth.rateLimitKey)) return c.json({ error: "Rate limited — wait 5 seconds" }, 429);
 
-    let body: { text?: string };
+    let body: { text?: string; annotations?: unknown };
     try {
       body = await c.req.json();
     } catch {
@@ -346,7 +347,14 @@ export function createServer(opts: ServerOpts): {
     if (!text || typeof text !== "string") return c.json({ error: "Missing prompt text" }, 400);
     if (text.length > 2000) return c.json({ error: "Prompt too long (max 2000 chars)" }, 400);
 
-    const prompt = promptQueue.add(text, auth.payload.name);
+    let annotations: Annotation[] | undefined;
+    if (body.annotations !== undefined) {
+      const validated = validateAnnotations(body.annotations);
+      if (!validated) return c.json({ error: "Invalid annotations" }, 400);
+      annotations = validated;
+    }
+
+    const prompt = promptQueue.add(text, auth.payload.name, annotations);
     // Broadcast to all connected clients so the prompt appears in their queue
     broadcaster.send("prompt-added", prompt).catch(() => {});
     return c.json(prompt, 201);
@@ -487,6 +495,7 @@ export async function startProcessingLoop(
         prompt.text,
         currentHtml,
         versionStore.getCurrentVersion(),
+        prompt.annotations,
       );
 
       if (result.success) {

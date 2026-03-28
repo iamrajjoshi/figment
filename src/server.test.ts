@@ -290,6 +290,36 @@ describe("Server", () => {
       });
       expect(res.status).toBe(400);
     });
+
+    it("returns 201 with annotations and includes them in response", async () => {
+      const annotations = [
+        {
+          type: "rect",
+          id: "test",
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 10,
+          author: "alice",
+          color: "#E8A84C",
+          strokeWidth: 2,
+        },
+      ];
+      const res = await app.request("/api/prompt", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + editorToken(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: "make this blue", annotations }),
+      });
+      expect(res.status).toBe(201);
+      const body = await res.json();
+      expect(body.annotations).toBeDefined();
+      expect(body.annotations).toHaveLength(1);
+      expect(body.annotations[0].type).toBe("rect");
+      expect(body.annotations[0].id).toBe("test");
+    });
   });
 
   // -----------------------------------------------------------------------

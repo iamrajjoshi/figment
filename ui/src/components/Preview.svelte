@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { currentVersion, previewVersion, hasPrototype, queue } from '../lib/stores';
+  import { currentVersion, previewVersion, hasPrototype, queue, annotations, activeTool, authorName } from '../lib/stores';
   import { fetchTicket } from '../lib/api';
+  import type { Annotation } from '../lib/annotation-types';
+  import AnnotationOverlay from './AnnotationOverlay.svelte';
 
   let iframeSrc = $state('about:blank');
   let isShimmering = $state(false);
@@ -71,6 +73,14 @@
     sandbox="allow-scripts"
     title="Live Preview"
   ></iframe>
+  <AnnotationOverlay
+    annotations={$annotations}
+    activeTool={$activeTool}
+    author={$authorName || 'Anonymous'}
+    onAnnotationCreated={(a: Annotation) => {
+      annotations.update((list) => [...list, a]);
+    }}
+  />
 </div>
 
 <style>

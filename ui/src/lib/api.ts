@@ -1,4 +1,5 @@
 import { get } from 'svelte/store';
+import type { Annotation } from './annotation-types';
 import {
   authHeaders,
   token,
@@ -53,13 +54,18 @@ export async function loadInitialState(): Promise<void> {
 }
 
 /**
- * Submit a new prompt to the queue.
+ * Submit a new prompt to the queue, optionally with annotations.
  */
-export async function submitPrompt(text: string, author: string): Promise<void> {
+export async function submitPrompt(text: string, author: string, promptAnnotations?: Annotation[]): Promise<void> {
+  const body: Record<string, unknown> = { text, author };
+  if (promptAnnotations?.length) {
+    body.annotations = promptAnnotations;
+  }
+
   const res = await fetch('/api/prompt', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ text, author }),
+    body: JSON.stringify(body),
   });
 
   if (res.status === 429) {

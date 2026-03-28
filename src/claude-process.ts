@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { readFile, writeFile, readdir } from "node:fs/promises";
 import { join, resolve, relative } from "node:path";
+import { type Annotation, formatAnnotationsAsText } from "./annotations.js";
 
 type OutputListener = (chunk: string) => void;
 type ToolProgressListener = (progress: { tool: string; path?: string; status: "started" | "completed" }) => void;
@@ -129,6 +130,7 @@ export class ClaudeProcess {
     instruction: string,
     _currentHtml: string,
     _version: number,
+    annotations?: Annotation[],
   ): Promise<ClaudeResult> {
     if (this.busy) {
       return { success: false, output: "Claude is busy processing another prompt" };
@@ -140,12 +142,17 @@ export class ClaudeProcess {
     this.busy = true;
     const startTime = Date.now();
 
-    const prompt = [
+    const annotationText = annotations?.length ? formatAnnotationsAsText(annotations) : "";
+
+    const parts = [
       `Design change from ${author}:`,
       instruction,
-      "",
-      "Read ./prototype.html, apply the change, and write it back. Only edit that file.",
-    ].join("\n");
+    ];
+    if (annotationText) {
+      parts.push("", annotationText);
+    }
+    parts.push("", "Read ./prototype.html, apply the change, and write it back. Only edit that file.");
+    const prompt = parts.join("\n");
 
     try {
       const result = await this.agenticLoop(prompt);
