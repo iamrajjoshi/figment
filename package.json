@@ -7,8 +7,11 @@
     "figment": "./dist/bin/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cd ui && pnpm build",
+    "build:server": "tsc",
+    "build:ui": "cd ui && pnpm build",
     "dev": "tsc --watch",
+    "dev:ui": "cd ui && pnpm dev",
     "start": "node dist/bin/cli.js start",
     "test": "vitest run",
     "test:watch": "vitest"

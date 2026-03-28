@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0D0D0D">
+  <title>Figment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0D0D0D;
+      --surface: #161616;
+      --surface-inset: #1C1C1C;
+      --surface-elevated: #222222;
+
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --border-focus: rgba(255, 255, 255, 0.25);
+
+      --text: #EDEDEC;
+      --text-secondary: #8A8A86;
+      --text-tertiary: #5A5A56;
+
+      --accent: #E8A84C;
+      --accent-hover: #D4962E;
+      --accent-bg: rgba(232, 168, 76, 0.10);
+      --accent-glow: rgba(232, 168, 76, 0.06);
+
+      --positive: #34D399;
+      --warning: #FBBF24;
+      --negative: #F87171;
+
+      --font: 'Instrument Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      --shadow-glow: 0 0 20px rgba(232, 168, 76, 0.08);
+    }
+
+    ::selection {
+      background: rgba(232, 168, 76, 0.25);
+      color: var(--text);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== Layout ===== */
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .compat-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ===== Onboarding ===== */
+
+    .onboarding {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      background-image: radial-gradient(ellipse 600px 400px at 50% 45%, rgba(232, 168, 76, 0.04) 0%, transparent 100%);
+      transition: opacity 300ms ease;
+    }
+
+    .onboarding.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .onboarding-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .onboarding-header {
+      margin-bottom: 28px;
+    }
+
+    .onboarding-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .onboarding-subtitle {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    .onboarding-field {
+      margin-bottom: 16px;
+    }
+
+    .onboarding-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .onboarding-optional {
+      color: var(--text-tertiary);
+      font-weight: 400;
+    }
+
+    .onboarding-hint {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+    }
+
+    .onboarding-input,
+    .onboarding-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-inset);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .onboarding-input:focus,
+    .onboarding-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow), 0 0 20px rgba(232, 168, 76, 0.04);
+    }
+
+    .onboarding-input::placeholder,
+    .onboarding-textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .onboarding-textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+
+    .onboarding-btn {
+      width: 100%;
+      padding: 10px 16px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: none;
+      background: var(--accent);
+      color: #0D0D0D;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+      margin-top: 4px;
+    }
+
+    .onboarding-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .onboarding-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .onboarding-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .onboarding-loading {
+      display: none;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 10px;
+      text-align: center;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .onboarding-loading.visible {
+      display: block;
+    }
+
+    /* ===== Main App ===== */
+
+    .main-app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== Header ===== */
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 48px;
+      min-height: 48px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .header-logo {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .header-divider {
+      color: var(--text-tertiary);
+      font-size: 14px;
+      font-weight: 300;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .header-session {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .version-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-bg);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .connected-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .connected-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--positive);
+    }
+
+    .avatar-stack {
+      display: flex;
+      align-items: center;
+    }
+
+    .avatar-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 600;
+      color: #fff;
+      border: 2px solid var(--surface);
+      margin-left: -5px;
+    }
+
+    .avatar-circle:first-child {
+      margin-left: 0;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* ===== Buttons ===== */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--surface-inset);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      line-height: 1.4;
+    }
+
+    .btn:hover {
+      background: var(--surface-elevated);
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0D0D0D;
+      border-color: transparent;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: transparent;
+      color: #0D0D0D;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-small {
+      padding: 3px 8px;
+      font-size: 12px;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-inset);
+      border-color: transparent;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-icon:hover {
+      color: var(--text);
+      background: var(--surface-inset);
+    }
+
+    .btn-icon:active {
+      transform: scale(0.95);
+    }
+
+    .btn-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== Canvas ===== */
+
+    .canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      position: relative;
+    }
+
+    /* ===== Empty State ===== */
+
+    .empty-canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 40px 24px;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-position: center center;
+      transition: opacity 300ms ease;
+    }
+
+    .empty-canvas.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .empty-canvas-heading {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+      letter-spacing: -0.5px;
+      animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    }
+
+    .empty-canvas-subtitle {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-top: -12px;
+      animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    }
+
+    .empty-canvas-suggestions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .suggestion-chip {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--accent);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .suggestion-chip:nth-child(1) {
+      animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    }
+    .suggestion-chip:nth-child(2) {
+      animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+    .suggestion-chip:nth-child(3) {
+      animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+    }
+
+    .suggestion-chip:hover {
+      background: var(--surface-elevated);
+      color: var(--text);
+      border-color: var(--border-hover);
+      border-left-color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    .suggestion-chip:active {
+      transform: translateX(2px) scale(0.99);
+    }
+
+    /* ===== Preview ===== */
+
+    .preview-wrapper {
+      flex: 1;
+      position: relative;
+      margin: 12px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #fff;
+      box-shadow: var(--shadow-md);
+      transition: opacity 300ms ease;
+    }
+
+    .preview-wrapper.fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+
+    .preview-wrapper.shimmer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      z-index: 10;
+      border-radius: 0 1px 1px 0;
+      animation: loadSlide 1.8s ease-in-out infinite;
+    }
+
+    @keyframes loadSlide {
+      0% { left: -40%; }
+      100% { left: 100%; }
+    }
+
+    .preview-iframe {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+      display: block;
+      z-index: 1;
+    }
+
+    .preview-viewing-badge {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 5px 12px;
+      background: rgba(13, 13, 13, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .preview-viewing-badge.visible {
+      opacity: 1;
+    }
+
+    /* ===== Timeline ===== */
+
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 16px;
+      height: 36px;
+      min-height: 36px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .timeline::-webkit-scrollbar { display: none; }
+
+    .timeline-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin-right: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .timeline-pills {
+      display: flex;
+      align-items: center;
+      gap: 1px;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .timeline-pills::-webkit-scrollbar { display: none; }
+
+    .timeline-pill {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: color 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timeline-pill:hover {
+      color: var(--text-secondary);
+      background: var(--surface-inset);
+    }
+
+    .timeline-pill.active {
+      color: var(--accent);
+      background: var(--accent-bg);
+      font-weight: 600;
+    }
+
+    .timeline-revert-btn {
+      flex-shrink: 0;
+      margin-left: auto;
+      padding: 3px 8px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .timeline-revert-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .timeline-revert-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    /* ===== Bottom Bar ===== */
+
+    .bottom-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+
+    .prompt-queue {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .prompt-queue::-webkit-scrollbar { display: none; }
+    .prompt-queue:empty { display: none; padding: 0; margin: 0; }
+
+    .prompt-bubble {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-width: 260px;
+      padding: 6px 10px;
+      background: var(--surface-inset);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      color: var(--text-secondary);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .prompt-bubble-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prompt-bubble-author {
+      font-weight: 600;
+      color: var(--text);
+      flex-shrink: 0;
+      font-size: 11px;
+    }
+
+    .prompt-bubble-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .prompt-bubble-status {
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .prompt-bubble-status.pending { background: var(--text-tertiary); }
+    .prompt-bubble-status.processing {
+      background: var(--warning);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .prompt-bubble-status.done { background: var(--positive); }
+    .prompt-bubble-status.error { background: var(--negative); }
+
+    .prompt-bubble-tool-progress {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ===== Prompt Input ===== */
+
+    .prompt-input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .author-tag {
+      flex-shrink: 0;
+      padding: 4px 8px;
+      background: var(--surface-inset);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .author-tag:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .author-tag.editing {
+      display: none;
+    }
+
+    .author-tag-input {
+      flex-shrink: 0;
+      width: 90px;
+      padding: 4px 8px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--surface-inset);
+      border: 1px solid var(--border-focus);
+      border-radius: var(--radius-sm);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      margin-bottom: 6px;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .author-tag-input.visible {
+      display: block;
+    }
+
+    .prompt-input-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .prompt-textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface-inset);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.4;
+      padding: 10px 48px 10px 14px;
+      outline: none;
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .prompt-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow), 0 0 20px rgba(232, 168, 76, 0.04);
+    }
+
+    .prompt-textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .prompt-textarea:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .send-btn {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #0D0D0D;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease, background 0.15s ease;
+      z-index: 2;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+      background: var(--accent-hover);
+    }
+
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.2;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .send-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .processing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      position: absolute;
+      right: 44px;
+      bottom: 15px;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .processing-indicator.visible {
+      opacity: 1;
+    }
+
+    .processing-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .processing-dot:nth-child(1) { animation: dotPulse 1.2s ease-in-out infinite 0s; }
+    .processing-dot:nth-child(2) { animation: dotPulse 1.2s ease-in-out infinite 0.15s; }
+    .processing-dot:nth-child(3) { animation: dotPulse 1.2s ease-in-out infinite 0.3s; }
+
+    @keyframes dotPulse {
+      0%, 60%, 100% { opacity: 0.3; }
+      30% { opacity: 1; }
+    }
+
+    /* ===== Modal ===== */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .modal-card {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+      animation: modalSlideIn 0.2s ease;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .modal-field {
+      margin-bottom: 12px;
+    }
+
+    .modal-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .modal-input,
+    .modal-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-inset);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .modal-input:focus,
+    .modal-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .modal-textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+
+    .modal-select {
+      width: 100%;
+      padding: 9px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-inset);
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A5A56' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 28px;
+    }
+
+    .modal-select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .modal-result {
+      margin-top: 12px;
+      padding: 10px;
+      background: var(--surface-inset);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .modal-result-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .modal-result-input {
+      width: 100%;
+      padding: 6px 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    /* ===== Toast ===== */
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      padding: 10px 18px;
+      background: var(--surface-elevated);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .toast.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: var(--negative);
+      color: #fff;
+      border-left-color: #fff;
+      border-color: var(--negative);
+    }
+
+    /* ===== Animations ===== */
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    @keyframes staggerFadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Scrollbar ===== */
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ===== Responsive ===== */
+
+    @media (max-width: 640px) {
+      .header {
+        padding: 0 12px;
+      }
+
+      .header-center {
+        display: none;
+      }
+
+      .preview-wrapper {
+        margin: 6px;
+        border-radius: var(--radius-md);
+      }
+
+      .bottom-bar {
+        padding: 8px 10px;
+      }
+
+      .prompt-bubble {
+        max-width: 200px;
+      }
+
+      .author-tag,
+      .author-tag-input {
+        display: none !important;
+      }
+
+      .empty-canvas-heading {
+        font-size: 22px;
+      }
+
+      .empty-canvas-suggestions {
+        max-width: 100%;
+      }
+
+      .empty-canvas {
+        background-size: 20px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+
+    <!-- Onboarding -->
+    <div class="onboarding" id="onboarding">
+      <div class="onboarding-card">
+        <div class="onboarding-header">
+          <h1 class="onboarding-title">Figment</h1>
+          <p class="onboarding-subtitle">Collaborative prototyping with AI</p>
+        </div>
+        <div class="onboarding-field">
+          <label class="onboarding-label" for="onboarding-name">Your name</label>
+          <input type="text" id="onboarding-name" class="onboarding-input" placeholder="e.g. Sarah" maxlength="100" autocomplete="off">
+        </div>
+        <div class="onboarding-field">
+          <label class="onboarding-label" for="onboarding-design-system">Design system <span class="onboarding-optional">(optional)</span></label>
+          <textarea id="onboarding-design-system" class="onboarding-textarea" placeholder="Paste a URL or CSS..."></textarea>
+          <p class="onboarding-hint">Import tokens from a URL or paste raw CSS.</p>
+        </div>
+        <button class="onboarding-btn" id="onboarding-submit">Continue</button>
+        <p class="onboarding-loading" id="onboarding-loading">Importing design system...</p>
+      </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="main-app" id="main-app" style="display:none">
+
+      <header class="header">
+        <div class="header-left">
+          <span class="header-logo">Figment</span>
+          <span class="header-divider">/</span>
+          <span class="header-session" id="session-name">Loading...</span>
+        </div>
+        <div class="header-center">
+          <span class="version-badge" id="version-badge">v0</span>
+          <span class="connected-badge">
+            <span class="connected-dot"></span>
+            <span id="connected-count">0</span>
+          </span>
+          <div class="avatar-stack" id="avatar-stack"></div>
+        </div>
+        <div class="header-right">
+          <button class="btn-icon" id="settings-btn" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <button class="btn-icon" id="export-btn" title="Export">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="btn-icon" id="invite-btn" title="Invite" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="canvas">
+        <div class="empty-canvas" id="empty-canvas">
+          <h2 class="empty-canvas-heading">What would you like to build?</h2>
+          <p class="empty-canvas-subtitle">Describe your interface and watch it come to life</p>
+          <div class="empty-canvas-suggestions">
+            <button class="suggestion-chip" data-suggestion="A settings page with a sidebar">A settings page with a sidebar</button>
+            <button class="suggestion-chip" data-suggestion="A Stripe-style pricing table">A Stripe-style pricing table</button>
+            <button class="suggestion-chip" data-suggestion="A dashboard with charts and cards">A dashboard with charts and cards</button>
+          </div>
+        </div>
+
+        <div class="preview-wrapper" id="preview-wrapper" style="display:none">
+          <span class="preview-viewing-badge" id="preview-viewing-badge"></span>
+          <iframe class="preview-iframe" id="preview-iframe" src="about:blank" sandbox="allow-scripts"></iframe>
+        </div>
+      </div>
+
+      <div class="timeline" id="timeline-bar">
+        <span class="timeline-label">Versions</span>
+        <div class="timeline-pills" id="history-list">
+          <span class="compat-hidden" id="history-empty">No versions yet</span>
+        </div>
+        <button class="timeline-revert-btn" id="timeline-revert-btn">Revert</button>
+      </div>
+
+      <div class="bottom-bar" id="prompt-section">
+        <div class="prompt-queue" id="queue-list">
+          <span class="compat-hidden" id="queue-empty">No prompts</span>
+        </div>
+        <div class="prompt-input-row">
+          <span class="author-tag" id="author-tag" title="Click to change name">Anonymous</span>
+          <input type="text" class="author-tag-input" id="author-tag-edit" maxlength="100" autocomplete="off">
+          <div class="prompt-input-container">
+            <textarea class="prompt-textarea" id="prompt-input" placeholder="Describe a change..." rows="1"></textarea>
+            <div class="processing-indicator" id="prompt-status">
+              <span class="processing-dot"></span>
+              <span class="processing-dot"></span>
+              <span class="processing-dot"></span>
+            </div>
+            <button class="send-btn" id="submit-btn" title="Send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div class="modal-overlay" id="invite-modal" style="display:none;">
+      <div class="modal-card">
+        <h3 class="modal-title">Invite collaborator</h3>
+        <div class="modal-field">
+          <label class="modal-label">Name</label>
+          <input type="text" id="invite-name" class="modal-input" placeholder="Alice" maxlength="100">
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Role</label>
+          <select id="invite-role" class="modal-select">
+            <option value="editor">Editor</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="invite-cancel">Cancel</button>
+          <button class="btn btn-primary" id="invite-generate">Generate link</button>
+        </div>
+        <div id="invite-result" class="modal-result" style="display:none;">
+          <label class="modal-result-label">Share this link</label>
+          <input type="text" id="invite-link" class="modal-result-input" readonly onclick="this.select()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal" style="display:none;">
+      <div class="modal-card">
+        <h3 class="modal-title">Settings</h3>
+        <div class="modal-field">
+          <label class="modal-label">Import design system</label>
+          <textarea id="settings-design-system" class="modal-textarea" placeholder="Paste a URL or CSS..."></textarea>
+          <p class="onboarding-hint" style="margin-top:4px">Paste a design system URL or raw CSS.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" id="settings-cancel">Cancel</button>
+          <button class="btn btn-primary" id="settings-import">Import</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <input type="hidden" id="author-input" value="">
+  <span class="compat-hidden" id="queue-count">0</span>
+  <span class="compat-hidden" id="history-count">0</span>
+  <span class="compat-hidden" id="participants-count">0</span>
+  <span class="compat-hidden" id="participants-list">
+    <span id="participants-empty">No one connected</span>
+  </span>
+  <span class="compat-hidden" id="preview-label">Live Preview</span>
+  <span class="compat-hidden" id="preview-version"></span>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ===== State =====
+
+      var token = '';
+      var role = 'viewer';
+      var currentVersion = 0;
+      var previewVersion = null;
+      var queue = [];
+      var versions = [];
+      var participants = [];
+      var isSubmitting = false;
+      var eventSource = null;
+      var hasPrototype = false;
+      var toolProgressMap = {};
+
+      // ===== DOM =====
+
+      var $onboarding = document.getElementById('onboarding');
+      var $onboardingName = document.getElementById('onboarding-name');
+      var $onboardingDesignSystem = document.getElementById('onboarding-design-system');
+      var $onboardingSubmit = document.getElementById('onboarding-submit');
+      var $onboardingLoading = document.getElementById('onboarding-loading');
+      var $mainApp = document.getElementById('main-app');
+      var $emptyCanvas = document.getElementById('empty-canvas');
+      var $previewWrapper = document.getElementById('preview-wrapper');
+
+      var $sessionName = document.getElementById('session-name');
+      var $connectedCount = document.getElementById('connected-count');
+      var $versionBadge = document.getElementById('version-badge');
+      var $exportBtn = document.getElementById('export-btn');
+      var $settingsBtn = document.getElementById('settings-btn');
+      var $previewIframe = document.getElementById('preview-iframe');
+      var $previewLabel = document.getElementById('preview-label');
+      var $previewVersion = document.getElementById('preview-version');
+      var $promptSection = document.getElementById('prompt-section');
+      var $authorInput = document.getElementById('author-input');
+      var $promptInput = document.getElementById('prompt-input');
+      var $promptStatus = document.getElementById('prompt-status');
+      var $submitBtn = document.getElementById('submit-btn');
+      var $queueCount = document.getElementById('queue-count');
+      var $queueList = document.getElementById('queue-list');
+      var $queueEmpty = document.getElementById('queue-empty');
+      var $historyCount = document.getElementById('history-count');
+      var $historyList = document.getElementById('history-list');
+      var $historyEmpty = document.getElementById('history-empty');
+      var $participantsCount = document.getElementById('participants-count');
+      var $participantsList = document.getElementById('participants-list');
+      var $participantsEmpty = document.getElementById('participants-empty');
+      var $toast = document.getElementById('toast');
+      var $inviteBtn = document.getElementById('invite-btn');
+      var $inviteModal = document.getElementById('invite-modal');
+      var $inviteName = document.getElementById('invite-name');
+      var $inviteRole = document.getElementById('invite-role');
+      var $inviteCancel = document.getElementById('invite-cancel');
+      var $inviteGenerate = document.getElementById('invite-generate');
+      var $inviteResult = document.getElementById('invite-result');
+      var $inviteLink = document.getElementById('invite-link');
+      var $settingsModal = document.getElementById('settings-modal');
+      var $settingsDesignSystem = document.getElementById('settings-design-system');
+      var $settingsCancel = document.getElementById('settings-cancel');
+      var $settingsImport = document.getElementById('settings-import');
+
+      var $authorTag = document.getElementById('author-tag');
+      var $authorTagEdit = document.getElementById('author-tag-edit');
+      var $avatarStack = document.getElementById('avatar-stack');
+      var $viewingBadge = document.getElementById('preview-viewing-badge');
+      var $timelineRevertBtn = document.getElementById('timeline-revert-btn');
+
+      // ===== Token & Role =====
+
+      function extractToken() {
+        var params = new URLSearchParams(window.location.search);
+        token = params.get('t') || '';
+
+        // Persist token so page refresh / SSE reconnect still works
+        if (token) {
+          localStorage.setItem('figment-token', token);
+        } else {
+          token = localStorage.getItem('figment-token') || '';
+        }
+
+        if (!token) return;
+
+        try {
+          var payloadPart = token.split('.')[0];
+          var padded = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
+          var json = atob(padded);
+          var payload = JSON.parse(json);
+          role = payload.role || 'viewer';
+        } catch (e) {
+          role = 'viewer';
+        }
+
+        if (params.has('t')) {
+          params.delete('t');
+          var clean = window.location.pathname;
+          if (params.toString()) clean += '?' + params.toString();
+          window.history.replaceState({}, '', clean);
+        }
+      }
+
+      function fetchTicket() {
+        if (!token) return Promise.reject(new Error('No auth token \u2014 use the full URL with ?t= parameter'));
+        return fetch('/api/ticket', {
+          method: 'POST',
+          headers: authHeaders()
+        })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Ticket request failed (' + res.status + ')');
+          return res.json();
+        })
+        .then(function (data) {
+          return data.ticket;
+        });
+      }
+
+      function applyRole() {
+        if (role === 'viewer') {
+          $promptSection.style.display = 'none';
+        } else {
+          $inviteBtn.style.display = '';
+        }
+      }
+
+      function authHeaders() {
+        return { 'Authorization': 'Bearer ' + token };
+      }
+
+      // ===== Onboarding =====
+
+      function checkOnboarding() {
+        var savedName = localStorage.getItem('figment-name');
+        if (savedName) {
+          $onboarding.style.display = 'none';
+          $mainApp.style.display = '';
+          $authorInput.value = savedName;
+          $authorTag.textContent = savedName;
+          return;
+        }
+        $onboarding.style.display = '';
+        $mainApp.style.display = 'none';
+      }
+
+      $onboardingSubmit.addEventListener('click', function () {
+        var name = $onboardingName.value.trim();
+        if (!name) {
+          $onboardingName.focus();
+          return;
+        }
+
+        var dsValue = $onboardingDesignSystem.value.trim();
+
+        localStorage.setItem('figment-name', name);
+        $authorInput.value = name;
+        $authorTag.textContent = name;
+        localStorage.setItem('figment-author', name);
+
+        if (dsValue) {
+          var isUrl = /^https?:\/\//i.test(dsValue);
+          var body = isUrl ? { url: dsValue } : { css: dsValue };
+
+          $onboardingSubmit.disabled = true;
+          $onboardingLoading.className = 'onboarding-loading visible';
+
+          fetch('/api/design-system', {
+            method: 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+            body: JSON.stringify(body)
+          })
+          .then(function (res) {
+            if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || 'Import failed'); });
+            return res.json();
+          })
+          .then(function (data) {
+            finishOnboarding();
+            if (data && data.token_count) {
+              showToast('Design system imported (' + data.token_count + ' tokens)', false);
+            } else {
+              showToast('Design system imported', false);
+            }
+          })
+          .catch(function (err) {
+            $onboardingSubmit.disabled = false;
+            $onboardingLoading.className = 'onboarding-loading';
+            showToast(err.message || 'Failed to import design system', true);
+          });
+        } else {
+          finishOnboarding();
+        }
+      });
+
+      $onboardingName.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          $onboardingSubmit.click();
+        }
+      });
+
+      function finishOnboarding() {
+        $onboarding.classList.add('fade-out');
+        $mainApp.style.display = '';
+        setTimeout(function () {
+          $onboarding.style.display = 'none';
+          $onboarding.classList.remove('fade-out');
+        }, 300);
+      }
+
+      // ===== Author =====
+
+      function loadAuthor() {
+        var saved = localStorage.getItem('figment-name') || localStorage.getItem('figment-author');
+        if (saved) {
+          $authorInput.value = saved;
+          $authorTag.textContent = saved;
+          localStorage.setItem('figment-name', saved);
+          localStorage.setItem('figment-author', saved);
+        }
+      }
+
+      function saveAuthor() {
+        var val = $authorInput.value.trim();
+        localStorage.setItem('figment-author', val);
+        localStorage.setItem('figment-name', val);
+      }
+
+      var isEditingAuthor = false;
+
+      $authorTag.addEventListener('click', function () {
+        if (isEditingAuthor) return;
+        isEditingAuthor = true;
+        $authorTag.classList.add('editing');
+        $authorTagEdit.value = $authorInput.value || '';
+        $authorTagEdit.classList.add('visible');
+        $authorTagEdit.focus();
+        $authorTagEdit.select();
+      });
+
+      function commitAuthorEdit() {
+        if (!isEditingAuthor) return;
+        isEditingAuthor = false;
+        var newName = $authorTagEdit.value.trim() || 'Anonymous';
+        $authorInput.value = newName;
+        $authorTag.textContent = newName;
+        $authorTag.classList.remove('editing');
+        $authorTagEdit.classList.remove('visible');
+        saveAuthor();
+      }
+
+      function cancelAuthorEdit() {
+        if (!isEditingAuthor) return;
+        isEditingAuthor = false;
+        $authorTag.classList.remove('editing');
+        $authorTagEdit.classList.remove('visible');
+      }
+
+      $authorTagEdit.addEventListener('blur', commitAuthorEdit);
+      $authorTagEdit.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); commitAuthorEdit(); }
+        if (e.key === 'Escape') { e.preventDefault(); cancelAuthorEdit(); }
+      });
+      $authorInput.addEventListener('blur', saveAuthor);
+
+      // ===== Toast =====
+
+      var toastTimer = null;
+      function showToast(msg, isError) {
+        $toast.textContent = msg;
+        $toast.className = 'toast visible' + (isError ? ' error' : '');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { $toast.className = 'toast'; }, 3500);
+      }
+
+      // ===== Utilities =====
+
+      function relativeTime(ts) {
+        if (!ts) return '';
+        var now = Date.now();
+        var date = typeof ts === 'string' ? new Date(ts) : new Date(ts * 1000);
+        var diff = Math.floor((now - date.getTime()) / 1000);
+        if (diff < 5) return 'just now';
+        if (diff < 60) return diff + 's ago';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        return Math.floor(diff / 86400) + 'd ago';
+      }
+
+      function truncate(text, len) {
+        if (!text) return '';
+        return text.length > len ? text.slice(0, len) + '\u2026' : text;
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+      }
+
+      // ===== Avatars =====
+
+      var avatarColors = [
+        '#5B8DEF', '#E06C87', '#D4A24C', '#4CAF7D', '#4ABDB5',
+        '#9B7BD4', '#D46B6B', '#4CAAA8', '#D48A4C', '#6B8FD4'
+      ];
+
+      function getAvatarColor(name) {
+        var hash = 0;
+        for (var i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        return avatarColors[Math.abs(hash) % avatarColors.length];
+      }
+
+      function getInitials(name) {
+        if (!name) return '?';
+        var parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return name.slice(0, 2).toUpperCase();
+      }
+
+      // ===== Canvas Visibility =====
+
+      function updateCanvasVisibility() {
+        var isProcessing = queue.some(function (q) { return q.status === 'processing'; });
+        var showEmpty = currentVersion === 0 && !hasPrototype && !isProcessing;
+
+        if (showEmpty) {
+          $emptyCanvas.style.display = '';
+          $emptyCanvas.classList.remove('fade-out');
+          $previewWrapper.style.display = 'none';
+        } else {
+          $emptyCanvas.style.display = 'none';
+          $previewWrapper.style.display = '';
+        }
+      }
+
+      function transitionToPreview() {
+        $emptyCanvas.classList.add('fade-out');
+        setTimeout(function () {
+          $emptyCanvas.style.display = 'none';
+          $previewWrapper.style.display = '';
+          $previewWrapper.classList.add('fade-in');
+          setTimeout(function () { $previewWrapper.classList.remove('fade-in'); }, 300);
+        }, 300);
+      }
+
+      var chips = document.querySelectorAll('.suggestion-chip');
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].addEventListener('click', function () {
+          var text = this.getAttribute('data-suggestion');
+          $promptInput.value = text;
+          $promptInput.focus();
+          autoResizeTextarea();
+        });
+      }
+
+      // ===== Processing Shimmer =====
+
+      function updateShimmerState() {
+        var isProcessing = queue.some(function (q) { return q.status === 'processing'; });
+        if (isProcessing && $previewWrapper.style.display !== 'none') {
+          $previewWrapper.classList.add('shimmer');
+        } else {
+          $previewWrapper.classList.remove('shimmer');
+        }
+      }
+
+      // ===== Render =====
+
+      function renderQueue() {
+        var active = queue.filter(function (q) {
+          return q.status === 'pending' || q.status === 'processing';
+        });
+
+        $queueCount.textContent = active.length;
+
+        if (active.length === 0) {
+          $queueEmpty.style.display = '';
+          var items = $queueList.querySelectorAll('.prompt-bubble');
+          for (var i = 0; i < items.length; i++) items[i].remove();
+          $promptStatus.className = 'processing-indicator';
+          updateShimmerState();
+          return;
+        }
+
+        $queueEmpty.style.display = 'none';
+
+        var html = '';
+        for (var i = 0; i < active.length; i++) {
+          var q = active[i];
+          var safeStatus = ['pending','processing','done','error'].indexOf(q.status) !== -1 ? q.status : 'pending';
+          var toolText = toolProgressMap[q.id] || '';
+          html += '<div class="prompt-bubble" data-prompt-id="' + escapeHtml(q.id || '') + '">'
+            + '<div class="prompt-bubble-top">'
+            + '<span class="prompt-bubble-status ' + safeStatus + '"></span>'
+            + '<span class="prompt-bubble-author">' + escapeHtml(q.author || 'Anon') + '</span>'
+            + '<span class="prompt-bubble-text">' + escapeHtml(truncate(q.text, 50)) + '</span>'
+            + '</div>'
+            + (safeStatus === 'processing' && toolText
+              ? '<span class="prompt-bubble-tool-progress">' + escapeHtml(toolText) + '</span>'
+              : '')
+            + '</div>';
+        }
+
+        var items = $queueList.querySelectorAll('.prompt-bubble');
+        for (var i = 0; i < items.length; i++) items[i].remove();
+        $queueEmpty.insertAdjacentHTML('beforebegin', html);
+
+        var hasProcessing = active.some(function (q) { return q.status === 'processing'; });
+        $promptStatus.className = hasProcessing ? 'processing-indicator visible' : 'processing-indicator';
+
+        updateShimmerState();
+        updateCanvasVisibility();
+      }
+
+      function renderHistory() {
+        $historyCount.textContent = versions.length;
+
+        if (versions.length === 0) {
+          $historyEmpty.style.display = '';
+          var items = $historyList.querySelectorAll('.timeline-pill');
+          for (var i = 0; i < items.length; i++) items[i].remove();
+          $timelineRevertBtn.className = 'timeline-revert-btn';
+          return;
+        }
+
+        $historyEmpty.style.display = 'none';
+
+        var viewingVersion = previewVersion !== null ? previewVersion : currentVersion;
+        var isEditor = role !== 'viewer';
+
+        var sorted = versions.slice().sort(function (a, b) { return a.version - b.version; });
+        var html = '';
+        for (var i = 0; i < sorted.length; i++) {
+          var v = sorted[i];
+          var isActive = v.version === viewingVersion;
+          var promptTip = v.prompt ? escapeHtml(truncate(v.prompt, 80)) : '';
+          var authorTip = v.author ? ' by ' + escapeHtml(v.author) : '';
+          html += '<div class="timeline-pill' + (isActive ? ' active' : '') + '" data-version="' + v.version + '" title="' + promptTip + authorTip + '">'
+            + 'v' + v.version
+            + '</div>';
+        }
+
+        var items = $historyList.querySelectorAll('.timeline-pill');
+        for (var i = 0; i < items.length; i++) items[i].remove();
+        $historyEmpty.insertAdjacentHTML('beforebegin', html);
+
+        var pills = $historyList.querySelectorAll('.timeline-pill');
+        for (var i = 0; i < pills.length; i++) {
+          pills[i].addEventListener('click', onHistoryClick);
+        }
+
+        if (isEditor && previewVersion !== null && previewVersion !== currentVersion) {
+          $timelineRevertBtn.className = 'timeline-revert-btn visible';
+          $timelineRevertBtn.setAttribute('data-revert', previewVersion);
+        } else {
+          $timelineRevertBtn.className = 'timeline-revert-btn';
+        }
+
+        var activePill = $historyList.querySelector('.timeline-pill.active');
+        if (activePill) {
+          activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+
+      function renderParticipants() {
+        $participantsCount.textContent = participants.length;
+        $connectedCount.textContent = participants.length;
+
+        if (participants.length === 0) {
+          $participantsEmpty.style.display = '';
+          $avatarStack.innerHTML = '';
+          var chips = $participantsList.querySelectorAll('.participant-chip');
+          for (var i = 0; i < chips.length; i++) chips[i].remove();
+          return;
+        }
+
+        $participantsEmpty.style.display = 'none';
+
+        var avatarHtml = '';
+        var maxShow = 5;
+        var showing = Math.min(participants.length, maxShow);
+        for (var i = 0; i < showing; i++) {
+          var name = participants[i];
+          var color = getAvatarColor(name);
+          avatarHtml += '<div class="avatar-circle" style="background:' + color + ';" title="' + escapeHtml(name) + '">'
+            + escapeHtml(getInitials(name))
+            + '</div>';
+        }
+        if (participants.length > maxShow) {
+          avatarHtml += '<div class="avatar-circle" style="background:var(--surface-inset);color:var(--text-secondary);" title="' + (participants.length - maxShow) + ' more">+'
+            + (participants.length - maxShow)
+            + '</div>';
+        }
+        $avatarStack.innerHTML = avatarHtml;
+
+        var html = '';
+        for (var i = 0; i < participants.length; i++) {
+          html += '<span class="participant-chip">'
+            + escapeHtml(participants[i])
+            + '</span>';
+        }
+
+        var chips = $participantsList.querySelectorAll('.participant-chip');
+        for (var i = 0; i < chips.length; i++) chips[i].remove();
+        $participantsEmpty.insertAdjacentHTML('beforebegin', html);
+      }
+
+      function updatePreview(version) {
+        if (version === undefined) version = currentVersion;
+        fetchTicket().then(function (ticket) {
+          $previewIframe.src = '/preview/' + version + '?ticket=' + ticket + '&cb=' + Date.now();
+        }).catch(function () {
+          $previewVersion.textContent = 'auth error';
+        });
+        $previewLabel.textContent = 'Live Preview';
+        var display = version > 0 ? 'v' + version : '';
+        $previewVersion.textContent = display;
+
+        if (previewVersion !== null && previewVersion !== currentVersion) {
+          $viewingBadge.textContent = 'Viewing v' + previewVersion;
+          $viewingBadge.className = 'preview-viewing-badge visible';
+        } else {
+          $viewingBadge.className = 'preview-viewing-badge';
+        }
+      }
+
+      function updateVersionBadge() {
+        $versionBadge.textContent = 'v' + currentVersion;
+      }
+
+      // ===== Auto-resize =====
+
+      function autoResizeTextarea() {
+        $promptInput.style.height = 'auto';
+        $promptInput.style.height = Math.min($promptInput.scrollHeight, 120) + 'px';
+      }
+
+      $promptInput.addEventListener('input', autoResizeTextarea);
+
+      // ===== Event Handlers =====
+
+      function onHistoryClick(e) {
+        var version = parseInt(e.currentTarget.getAttribute('data-version'), 10);
+        if (isNaN(version)) return;
+        previewVersion = version;
+        updatePreview(version);
+        $previewLabel.textContent = 'Viewing v' + version;
+        renderHistory();
+      }
+
+      function onRevertClick(e) {
+        e.stopPropagation();
+        var version = parseInt(e.currentTarget.getAttribute('data-revert'), 10);
+        if (isNaN(version)) return;
+        revertToVersion(version);
+      }
+
+      $timelineRevertBtn.addEventListener('click', onRevertClick);
+      $submitBtn.addEventListener('click', submitPrompt);
+
+      $promptInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); submitPrompt(); }
+        if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) { e.preventDefault(); submitPrompt(); }
+      });
+
+      $exportBtn.addEventListener('click', exportPrototype);
+
+      $settingsBtn.addEventListener('click', function () {
+        $settingsDesignSystem.value = '';
+        $settingsModal.style.display = 'flex';
+      });
+
+      $settingsCancel.addEventListener('click', function () { $settingsModal.style.display = 'none'; });
+      $settingsModal.addEventListener('click', function (e) { if (e.target === $settingsModal) $settingsModal.style.display = 'none'; });
+
+      $settingsImport.addEventListener('click', function () {
+        var dsValue = $settingsDesignSystem.value.trim();
+        if (!dsValue) { showToast('Paste a URL or CSS to import', true); return; }
+
+        var isUrl = /^https?:\/\//i.test(dsValue);
+        var body = isUrl ? { url: dsValue } : { css: dsValue };
+
+        $settingsImport.disabled = true;
+        $settingsImport.textContent = 'Importing\u2026';
+
+        fetch('/api/design-system', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+          body: JSON.stringify(body)
+        })
+        .then(function (res) {
+          if (!res.ok) return res.json().then(function (d) { throw new Error(d.error || 'Import failed'); });
+          return res.json();
+        })
+        .then(function (data) {
+          $settingsModal.style.display = 'none';
+          if (data && data.token_count) {
+            showToast('Design system imported (' + data.token_count + ' tokens)', false);
+          } else {
+            showToast('Design system imported', false);
+          }
+        })
+        .catch(function (err) {
+          showToast(err.message || 'Failed to import design system', true);
+        })
+        .finally(function () {
+          $settingsImport.disabled = false;
+          $settingsImport.textContent = 'Import';
+        });
+      });
+
+      $inviteBtn.addEventListener('click', function () {
+        $inviteResult.style.display = 'none';
+        $inviteName.value = '';
+        $inviteRole.value = 'editor';
+        $inviteModal.style.display = 'flex';
+      });
+
+      $inviteCancel.addEventListener('click', function () { $inviteModal.style.display = 'none'; });
+      $inviteModal.addEventListener('click', function (e) { if (e.target === $inviteModal) $inviteModal.style.display = 'none'; });
+
+      $inviteGenerate.addEventListener('click', function () {
+        var name = $inviteName.value.trim();
+        if (!name) { showToast('Enter a name', true); return; }
+
+        fetch('/api/invite', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+          body: JSON.stringify({ role: $inviteRole.value, name: name })
+        })
+        .then(function (res) {
+          if (!res.ok) return res.json().then(function (d) { throw new Error(d.error); });
+          return res.json();
+        })
+        .then(function (data) {
+          var baseUrl = window.location.origin;
+          $inviteLink.value = baseUrl + '/?t=' + data.token;
+          $inviteResult.style.display = 'block';
+        })
+        .catch(function (err) {
+          showToast(err.message || 'Failed to generate invite', true);
+        });
+      });
+
+      // ===== API =====
+
+      function submitPrompt() {
+        var text = $promptInput.value.trim();
+        if (!text || isSubmitting) return;
+
+        var author = $authorInput.value.trim() || 'Anonymous';
+        saveAuthor();
+
+        isSubmitting = true;
+        $submitBtn.disabled = true;
+
+        fetch('/api/prompt', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+          body: JSON.stringify({ text: text, author: author })
+        })
+        .then(function (res) {
+          if (res.status === 429) { showToast('Rate limited. Please wait a moment.', true); return; }
+          if (!res.ok) { return res.json().then(function (data) { showToast(data.error || 'Failed to submit prompt', true); }); }
+          $promptInput.value = '';
+          autoResizeTextarea();
+        })
+        .catch(function (err) { showToast('Network error: ' + err.message, true); })
+        .finally(function () { isSubmitting = false; $submitBtn.disabled = false; });
+      }
+
+      function revertToVersion(version) {
+        fetch('/api/revert/' + version, { method: 'POST', headers: authHeaders() })
+        .then(function (res) {
+          if (!res.ok) { return res.json().then(function (data) { showToast(data.error || 'Failed to revert', true); }); }
+          showToast('Reverted to v' + version, false);
+        })
+        .catch(function (err) { showToast('Network error: ' + err.message, true); });
+      }
+
+      function exportPrototype() {
+        fetchTicket().then(function (ticket) {
+          window.open('/preview/' + currentVersion + '?ticket=' + ticket + '&download=1', '_blank');
+        }).catch(function () { showToast('Failed to export', true); });
+      }
+
+      function loadInitialState() {
+        if (!token) { showToast('No auth token \u2014 use the full URL with ?t= parameter', true); return; }
+        fetch('/api/state', { headers: authHeaders() })
+        .then(function (res) {
+          if (!res.ok) throw new Error('State request failed (' + res.status + ')');
+          return res.json();
+        })
+        .then(function (data) {
+          $sessionName.textContent = data.session_name || 'Untitled session';
+          currentVersion = data.current_version || 0;
+          queue = data.queue || [];
+          versions = data.versions || [];
+          participants = data.participants || [];
+          hasPrototype = !!data.has_prototype;
+
+          updateVersionBadge();
+          renderQueue();
+          renderHistory();
+          renderParticipants();
+          updateCanvasVisibility();
+
+          if (currentVersion > 0 || hasPrototype) {
+            updatePreview(currentVersion);
+          }
+        })
+        .catch(function (err) {
+          showToast('Failed to load session state', true);
+          console.error(err);
+        });
+      }
+
+      // ===== SSE =====
+
+      function connectSSE() {
+        if (eventSource) eventSource.close();
+
+        fetchTicket().then(function (ticket) {
+          eventSource = new EventSource('/api/events?ticket=' + ticket);
+
+          eventSource.addEventListener('prompt-added', function (e) {
+            var data = JSON.parse(e.data);
+            var exists = queue.some(function (q) { return q.id === data.id; });
+            if (!exists) queue.push(data);
+            renderQueue();
+          });
+
+          eventSource.addEventListener('prompt-updated', function (e) {
+            var data = JSON.parse(e.data);
+            for (var i = 0; i < queue.length; i++) {
+              if (queue[i].id === data.id) { queue[i] = Object.assign(queue[i], data); break; }
+            }
+            if (data.status === 'done' || data.status === 'error') delete toolProgressMap[data.id];
+            renderQueue();
+          });
+
+          eventSource.addEventListener('prototype-updated', function (e) {
+            var data = JSON.parse(e.data);
+            var wasFirstPrototype = currentVersion === 0 && !hasPrototype;
+            currentVersion = data.version;
+            hasPrototype = true;
+            updateVersionBadge();
+
+            var exists = versions.some(function (v) { return v.version === data.version; });
+            if (!exists) versions.push(data);
+            renderHistory();
+
+            if (wasFirstPrototype) {
+              transitionToPreview();
+            } else {
+              updateCanvasVisibility();
+            }
+
+            if (previewVersion === null || previewVersion === currentVersion - 1) {
+              previewVersion = null;
+              updatePreview(currentVersion);
+            }
+          });
+
+          eventSource.addEventListener('participant-joined', function (e) {
+            var data = JSON.parse(e.data);
+            if (participants.indexOf(data.name) === -1) participants.push(data.name);
+            renderParticipants();
+          });
+
+          eventSource.addEventListener('participant-left', function (e) {
+            var data = JSON.parse(e.data);
+            participants = participants.filter(function (p) { return p !== data.name; });
+            renderParticipants();
+          });
+
+          eventSource.addEventListener('tool-progress', function (e) {
+            var data = JSON.parse(e.data);
+            if (!data.tool) return;
+            var friendlyName = data.tool.replace(/_/g, ' ');
+            var path = data.path || '';
+            var filename = path ? path.split('/').pop() : '';
+
+            var text = '';
+            if (data.status === 'started') {
+              text = friendlyName.charAt(0).toUpperCase() + friendlyName.slice(1);
+              if (filename) text += ' ' + filename;
+              text += '\u2026';
+            }
+
+            if (data.prompt_id) {
+              if (text) { toolProgressMap[data.prompt_id] = text; }
+              else if (data.status === 'completed') { delete toolProgressMap[data.prompt_id]; }
+            } else {
+              var processingPrompt = queue.find(function (q) { return q.status === 'processing'; });
+              if (processingPrompt) {
+                if (text) { toolProgressMap[processingPrompt.id] = text; }
+                else if (data.status === 'completed') { delete toolProgressMap[processingPrompt.id]; }
+              }
+            }
+            renderQueue();
+          });
+
+          eventSource.addEventListener('design-system-updated', function (e) {
+            var data = JSON.parse(e.data);
+            if (data && data.token_count) {
+              showToast('Design system updated (' + data.token_count + ' tokens)', false);
+            } else {
+              showToast('Design system updated', false);
+            }
+          });
+
+          eventSource.addEventListener('error', function () {
+            setTimeout(function () { connectSSE(); }, 3000);
+          });
+        }).catch(function (err) {
+          console.error('SSE connect error:', err);
+          showToast(err.message || 'Failed to connect', true);
+          setTimeout(function () { connectSSE(); }, 3000);
+        });
+      }
+
+      setInterval(function () { renderHistory(); }, 30000);
+
+      // ===== Init =====
+
+      function init() {
+        extractToken();
+        applyRole();
+        loadAuthor();
+        checkOnboarding();
+        loadInitialState();
+        connectSSE();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

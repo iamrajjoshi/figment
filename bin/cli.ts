@@ -222,7 +222,7 @@ ${tokens}
       model: opts.model,
     });
 
-    const uiHtmlPath = join(ROOT, "ui", "index.html");
+    const uiHtmlPath = join(ROOT, "ui", "dist", "index.html");
     const { app, broadcast } = createServer({
       secret,
       sessionName: opts.name,
