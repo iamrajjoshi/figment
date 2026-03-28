@@ -1,0 +1,34 @@
+{
+  "name": "figment",
+  "version": "0.1.0",
+  "description": "Collaborative design prototyping with Claude Code",
+  "type": "module",
+  "bin": {
+    "figment": "./dist/bin/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/bin/cli.js start",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.85",
+    "@anthropic-ai/sdk": "^0.80.0",
+    "@hono/node-server": "^1.19.11",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.3",
+    "hono": "^4.12.9"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}
