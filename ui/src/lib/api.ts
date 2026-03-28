@@ -49,7 +49,7 @@ export async function loadInitialState(): Promise<void> {
   currentVersion.set(data.current_version || 0);
   queue.set(data.queue || []);
   versions.set(data.versions || []);
-  participants.set(data.participants || []);
+  participants.set((data.participants || []).map((p: { name: string } | string) => typeof p === 'string' ? p : p.name));
   hasPrototype.set(!!data.has_prototype);
 }
 
